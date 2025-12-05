@@ -7,6 +7,7 @@ namespace BlazorShop.API
     using BlazorShop.Infrastructure.Data;
 
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
 
@@ -70,11 +71,11 @@ namespace BlazorShop.API
                     ForwardLimit = 1
                 });
 #endif
-                // Create database schema at startup (no migrations present yet)
+                // Apply EF Core migrations at startup
                 using (var scope = app.Services.CreateScope())
                 {
                     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    db.Database.EnsureCreated();
+                    db.Database.Migrate();
                 }
 
                 app.UseCors();
