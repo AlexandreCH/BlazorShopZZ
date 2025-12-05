@@ -38,6 +38,7 @@
             services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 
             services.AddScoped<INewsletterService, NewsletterService>();
+            services.AddScoped<ISupportTicketService, SupportTicketService>();
 
             return services;
         }

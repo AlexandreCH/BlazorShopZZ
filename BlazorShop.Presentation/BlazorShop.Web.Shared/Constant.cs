@@ -88,5 +88,12 @@
         {
             public const string Subscribe = "newsletter/subscribe";
         }
+
+        public static class SupportTicket
+        {
+            public const string Submit = "supportticket/submit";
+            public const string GetAll = "supportticket/all";
+            public const string GetById = "supportticket";
+        }
     }
 }

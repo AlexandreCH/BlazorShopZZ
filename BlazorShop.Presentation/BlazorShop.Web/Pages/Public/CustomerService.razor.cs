@@ -1,20 +1,46 @@
 ﻿namespace BlazorShop.Web.Pages.Public
 {
+    using BlazorShop.Web.Shared.Models.SupportTicket;
+    using BlazorShop.Web.Shared.Services.Contracts;
+    using Microsoft.AspNetCore.Components;
+
     public partial class CustomerService
     {
-        private string CustomerName { get; set; } = string.Empty;
+        [Inject]
+        private ISupportTicketService SupportTicketService { get; set; } = default!;
 
-        private string CustomerEmail { get; set; } = string.Empty;
+        private SubmitTicketRequest Model { get; set; } = new();
+        private bool IsSubmitting { get; set; }
 
-        private string CustomerMessage { get; set; } = string.Empty;
-
-        private void SubmitTicket()
+        private async Task SubmitTicket()
         {
-            // Логика за обработка на заявката
-            Console.WriteLine($"Name: {this.CustomerName}, Email: {this.CustomerEmail}, Message: {this.CustomerMessage}");
-            this.CustomerName = string.Empty;
-            this.CustomerEmail = string.Empty;
-            this.CustomerMessage = string.Empty;
+            if (IsSubmitting)
+                return;
+
+            IsSubmitting = true;
+
+            try
+            {
+                var result = await SupportTicketService.SubmitTicketAsync(Model);
+
+                if (result.Success)
+                {
+                    ToastService.ShowSuccessToast(result.Message);
+                    Model = new SubmitTicketRequest();
+                }
+                else
+                {
+                    ToastService.ShowErrorToast(result.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                ToastService.ShowErrorToast($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                IsSubmitting = false;
+            }
         }
     }
 }

@@ -14,7 +14,7 @@
       <section>
         <h3 class="text-lg font-semibold">Contact Us</h3>
         <ul class="mt-2 list-disc list-inside text-sm">
-          <li><strong>Email:</strong> support@yourstore.com</li>
+          <li><strong>Email:</strong> support@az-solve.com</li>
           <li><strong>Phone:</strong> +1 123-456-7890</li>
           <li><strong>Address:</strong> 123 Main Street, Your City, Your Country</li>
         </ul>
@@ -28,12 +28,35 @@
 
       <section>
         <h3 class="text-lg font-semibold">Submit a Ticket</h3>
-        <form @onsubmit="SubmitTicket" class="mt-3 space-y-3">
-          <input type="text" @bind="CustomerName" class="w-full border rounded px-3 py-2" placeholder="Your Name" required />
-          <input type="email" @bind="CustomerEmail" class="w-full border rounded px-3 py-2" placeholder="Your Email" required />
-          <textarea @bind="CustomerMessage" class="w-full border rounded px-3 py-2" rows="4" placeholder="Your Message" required></textarea>
-          <button type="submit" class="inline-flex items-center rounded bg-emerald-600 text-white px-4 py-2 font-semibold hover:bg-emerald-700">Submit</button>
-        </form>
+        <EditForm Model="Model" OnValidSubmit="SubmitTicket" class="mt-3 space-y-3">
+          <DataAnnotationsValidator />
+          
+          <div>
+            <input type="text" @bind="Model.CustomerName" class="w-full border rounded px-3 py-2" placeholder="Your Name" disabled="@IsSubmitting" />
+            <ValidationMessage For="@(() => Model.CustomerName)" class="text-red-600 text-sm mt-1" />
+          </div>
+          
+          <div>
+            <input type="email" @bind="Model.CustomerEmail" class="w-full border rounded px-3 py-2" placeholder="Your Email" disabled="@IsSubmitting" />
+            <ValidationMessage For="@(() => Model.CustomerEmail)" class="text-red-600 text-sm mt-1" />
+          </div>
+          
+          <div>
+            <textarea @bind="Model.Message" class="w-full border rounded px-3 py-2" rows="4" placeholder="Your Message" disabled="@IsSubmitting"></textarea>
+            <ValidationMessage For="@(() => Model.Message)" class="text-red-600 text-sm mt-1" />
+          </div>
+          
+          <button type="submit" class="inline-flex items-center rounded bg-emerald-600 text-white px-4 py-2 font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled="@IsSubmitting">
+            @if (IsSubmitting)
+            {
+              <span>Submitting...</span>
+            }
+            else
+            {
+              <span>Submit</span>
+            }
+          </button>
+        </EditForm>
       </section>
     </div>
   </div>

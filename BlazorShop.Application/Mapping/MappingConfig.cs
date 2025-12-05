@@ -6,6 +6,7 @@
     using BlazorShop.Application.DTOs.Payment;
     using BlazorShop.Application.DTOs.Product;
     using BlazorShop.Application.DTOs.Product.ProductVariant;
+    using BlazorShop.Application.DTOs.SupportTicket;
     using BlazorShop.Application.DTOs.UserIdentity;
     using BlazorShop.Domain.Entities;
     using BlazorShop.Domain.Entities.Identity;
@@ -37,6 +38,9 @@
 
             this.CreateMap<PaymentMethod, GetPaymentMethod>();
             this.CreateMap<CreateOrderItem, OrderItem>();
+
+            this.CreateMap<SupportTicket, GetSupportTicket>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

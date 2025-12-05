@@ -19,7 +19,7 @@
 
         public DbSet<Product> Products { get; set; }
 
-        public DbSet<ProductVariant> ProductVariants { get; set; } // new
+        public DbSet<ProductVariant> ProductVariants { get; set; }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -32,6 +32,8 @@
         public DbSet<Order> Orders { get; set; }
 
         public DbSet<OrderLine> OrderLines { get; set; }
+
+        public DbSet<SupportTicket> SupportTickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -94,6 +96,16 @@
                 .WithOne(l => l.Order!)
                 .HasForeignKey(l => l.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // SupportTicket configuration
+            builder.Entity<SupportTicket>()
+                   .HasIndex(t => t.CustomerEmail);
+
+            builder.Entity<SupportTicket>()
+                   .HasIndex(t => t.Status);
+
+            builder.Entity<SupportTicket>()
+                   .HasIndex(t => t.SubmittedOn);
         }
     }
 }

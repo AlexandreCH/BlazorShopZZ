@@ -8,6 +8,7 @@
 
     using MimeKit;
     using MailKit.Net.Smtp;
+    using MailKit.Security;
 
     public class EmailService : IEmailService
     {
@@ -32,7 +33,14 @@
             try
             {
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.Port, _emailSettings.UseSsl, cts.Token).ConfigureAwait(false);
+                
+                // Determine the correct SecureSocketOptions based on port and UseSsl setting
+                var secureSocketOptions = _emailSettings.Port == 465 
+                    ? SecureSocketOptions.SslOnConnect 
+                    : (_emailSettings.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None);
+                
+                await smtp.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.Port, secureSocketOptions, cts.Token).ConfigureAwait(false);
+                
                 if (!string.IsNullOrEmpty(_emailSettings.Username))
                 {
                     await smtp.AuthenticateAsync(_emailSettings.Username, _emailSettings.Password, cts.Token).ConfigureAwait(false);
