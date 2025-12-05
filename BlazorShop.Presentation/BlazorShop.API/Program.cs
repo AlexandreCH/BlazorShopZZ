@@ -15,7 +15,7 @@ namespace BlazorShop.API
 
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -71,11 +71,19 @@ namespace BlazorShop.API
                     ForwardLimit = 1
                 });
 #endif
-                // Apply EF Core migrations at startup
+                // Apply EF Core migrations and seed data at startup
                 using (var scope = app.Services.CreateScope())
                 {
                     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    
                     db.Database.Migrate();
+                    
+                    // Seed sample data in development
+                    if (app.Environment.IsDevelopment())
+                    {
+                        await DbSeeder.SeedAsync(db, logger);
+                    }
                 }
 
                 app.UseCors();
@@ -116,7 +124,7 @@ namespace BlazorShop.API
 
                 Log.Logger.Information("Application Started");
 
-                app.Run();
+                await app.RunAsync();
             }
             catch (Exception e)
             {
@@ -124,7 +132,7 @@ namespace BlazorShop.API
             }
             finally
             {
-                Log.CloseAndFlush();
+                await Log.CloseAndFlushAsync();
             }
         }
     }
