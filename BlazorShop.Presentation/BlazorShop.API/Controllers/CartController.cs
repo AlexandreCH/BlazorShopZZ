@@ -30,7 +30,7 @@
         /// <param name="checkout">The checkout object </param>
         /// <returns>The products in the cart </returns>
         [HttpPost("checkout")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Admin")]
         public async Task<IActionResult> Checkout(Checkout checkout)
         {
             var userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -44,7 +44,7 @@
         /// <param name="orderItems">The list of products to save </param>
         /// <returns>The result of the save </returns>
         [HttpPost("save-checkout")]
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Admin")]
         public async Task<IActionResult> SaveCheckout(IEnumerable<CreateOrderItem> orderItems)
         {
             var result = await _cartService.SaveCheckoutHistoryAsync(orderItems);

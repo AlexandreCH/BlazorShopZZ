@@ -27,6 +27,7 @@
     using Microsoft.EntityFrameworkCore.Diagnostics;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using Microsoft.IdentityModel.Tokens;
 
     public static class DependencyInjection
@@ -90,15 +91,52 @@
             services.AddScoped<IAppTokenManager, AppTokenManager>();
             services.AddScoped<IAppRoleManager, AppRoleManager>();
 
+            // Configure payment settings
+            services.Configure<AppConfiguration>(config.GetSection("App"));
+            services.Configure<StripeConfiguration>(config.GetSection("Stripe"));
+            services.Configure<PayPalConfiguration>(config.GetSection("PayPal"));
+            services.Configure<BankTransferSettings>(config.GetSection("BankTransfer"));
+            services.Configure<PaymentSystemConfiguration>(config.GetSection("Payment"));
+
+            // Payment services - use mock if configured
+            var useMockPayments = config.GetValue<bool>("Payment:UseMockPayments", false);
+            
+            if (useMockPayments)
+            {
+                services.AddScoped<IPaymentService, MockPaymentService>();
+                
+                // Log warning about mock payments
+                var serviceProvider = services.BuildServiceProvider();
+                var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+                if (loggerFactory != null)
+                {
+                    var logger = loggerFactory.CreateLogger("BlazorShop.Infrastructure");
+                    logger.LogWarning("⚠️ Using MOCK payment service - NOT FOR PRODUCTION USE!");
+                }
+            }
+            else
+            {
+                // Configure Stripe
+                var stripeKey = config["Stripe:SecretKey"];
+                if (!string.IsNullOrEmpty(stripeKey))
+                {
+                    Stripe.StripeConfiguration.ApiKey = stripeKey;
+                    services.AddScoped<IPaymentService, StripePaymentService>();
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        "Stripe:SecretKey not configured. Please set it in User Secrets or enable mock payments.");
+                }
+            }
+
             services.AddScoped<IPaymentMethod, PaymentMethodRepository>();
-            services.AddScoped<IPaymentService, StripePaymentService>();
             services.AddScoped<IPayPalPaymentService, PayPalPaymentService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderTrackingService, OrderTrackingService>();
             services.AddScoped<IOrderQueryService, OrderQueryService>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-
             services.AddScoped<ICart, CartRepository>();
 
             // Product recommendations
@@ -107,10 +145,7 @@
             // Add memory cache for recommendations
             services.AddMemoryCache();
 
-            Stripe.StripeConfiguration.ApiKey = config["Stripe:SecretKey"];
-
             services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
-            services.Configure<BankTransferSettings>(config.GetSection("BankTransfer"));
             services.AddTransient<IEmailService, EmailService>();
 
             return services;

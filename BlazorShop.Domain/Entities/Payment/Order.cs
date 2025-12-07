@@ -29,5 +29,15 @@ namespace BlazorShop.Domain.Entities.Payment
         public DateTime? DeliveredOn { get; set; }
 
         public DateTime? LastTrackingUpdate { get; set; }
+
+        /// <summary>
+        /// Payment reference from payment provider (Stripe session ID, PayPal order ID, etc.)
+        /// </summary>
+        public string? PaymentReference { get; set; }
+
+        /// <summary>
+        /// Payment method used: CreditCard, PayPal, BankTransfer, CashOnDelivery
+        /// </summary>
+        public string? PaymentMethod { get; set; }
     }
 }

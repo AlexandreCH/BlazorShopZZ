@@ -119,6 +119,7 @@ namespace BlazorShop.Tests.Application.Services.Payment
         {
             // Arrange
             var paymentMethodId = Guid.NewGuid();
+            var productId = Guid.NewGuid();
             var checkout = new Checkout
             {
                 PaymentMethodId = paymentMethodId,
@@ -126,7 +127,7 @@ namespace BlazorShop.Tests.Application.Services.Payment
                 {
                     new ProcessCart
                     {
-                        ProductId = Guid.NewGuid(),
+                        ProductId = productId,
                         Quantity = 1
                     }
                 }
@@ -135,14 +136,16 @@ namespace BlazorShop.Tests.Application.Services.Payment
             {
                 new Product
                 {
-                    Id = checkout.Carts.First().ProductId,
-                    Price = 10m
+                    Id = productId,
+                    Price = 10m,
+                    Name = "Test Product"
                 }
             };
-            var totalAmount = 10m;
+            
             _productRepositoryMock
                 .Setup(r => r.GetAllAsync())
                 .ReturnsAsync(products);
+                
             _paymentMethodServiceMock
                 .Setup(s => s.GetPaymentMethodsAsync())
                 .ReturnsAsync(new List<GetPaymentMethod>
@@ -153,16 +156,26 @@ namespace BlazorShop.Tests.Application.Services.Payment
                         Name = "Credit Card"
                     }
                 });
+                
+            _orderRepositoryMock
+                .Setup(o => o.CreateAsync(It.IsAny<Order>()))
+                .ReturnsAsync(Guid.NewGuid());
+                
             _paymentServiceMock
-                .Setup(s => s.Pay(totalAmount, products, checkout.Carts))
-                .ReturnsAsync(new ServiceResponse(true, "Payment successful"));
+                .Setup(s => s.CreateCheckoutSessionAsync(It.IsAny<Order>()))
+                .ReturnsAsync(new PaymentResult
+                {
+                    Success = true,
+                    RedirectUrl = "https://payment.url",
+                    Provider = "Stripe"
+                });
 
             // Act
             var result = await _cartService.CheckoutAsync(checkout);
 
             // Assert
             Assert.True(result.Success);
-            Assert.Equal("Payment successful", result.Message);
+            Assert.Equal("https://payment.url", result.Message);
         }
 
         [Fact]

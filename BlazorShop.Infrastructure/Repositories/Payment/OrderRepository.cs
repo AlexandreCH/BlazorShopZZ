@@ -8,6 +8,7 @@ namespace BlazorShop.Infrastructure.Repositories.Payment
     public class OrderRepository : IOrderRepository
     {
         private readonly AppDbContext _context;
+        
         public OrderRepository(AppDbContext context)
         {
             _context = context;
@@ -22,7 +23,23 @@ namespace BlazorShop.Infrastructure.Repositories.Payment
 
         public async Task<Order?> GetByReferenceAsync(string reference)
         {
-            return await _context.Orders.Include(o => o.Lines).FirstOrDefaultAsync(o => o.Reference == reference);
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .FirstOrDefaultAsync(o => o.Reference == reference);
+        }
+
+        public async Task<Order?> GetByIdAsync(Guid orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
+
+        public async Task<Order?> GetByPaymentReferenceAsync(string paymentReference)
+        {
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .FirstOrDefaultAsync(o => o.PaymentReference == paymentReference);
         }
 
         public async Task<int> UpdateStatusAsync(Guid orderId, string status)
@@ -33,14 +50,37 @@ namespace BlazorShop.Infrastructure.Repositories.Payment
             return await _context.SaveChangesAsync();
         }
 
+        public async Task<int> UpdatePaymentReferenceAsync(Guid orderId, string paymentReference)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null) return 0;
+            order.PaymentReference = paymentReference;
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> UpdatePaymentMethodAsync(Guid orderId, string paymentMethod)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null) return 0;
+            order.PaymentMethod = paymentMethod;
+            return await _context.SaveChangesAsync();
+        }
+
         public async Task<List<Order>> GetByUserIdAsync(string userId)
         {
-            return await _context.Orders.Include(o => o.Lines).Where(o => o.UserId == userId).OrderByDescending(o => o.CreatedOn).ToListAsync();
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.CreatedOn)
+                .ToListAsync();
         }
 
         public async Task<List<Order>> GetAllAsync()
         {
-            return await _context.Orders.Include(o => o.Lines).OrderByDescending(o => o.CreatedOn).ToListAsync();
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .OrderByDescending(o => o.CreatedOn)
+                .ToListAsync();
         }
     }
 }
