@@ -150,15 +150,18 @@
             var accessToken = _tokenManager.GenerateAccessToken(claims);
             var refreshToken = _tokenManager.GetReFreshToken();
 
-            var saveTokenResult = 0;
-            var isRefreshTokenValid = await _tokenManager.ValidateRefreshTokenAsync(refreshToken);
-
-            if (isRefreshTokenValid)
+            // Check if user already has any refresh tokens and replace them
+            var hasExistingToken = await _tokenManager.UserHasRefreshTokenAsync(currentUser.Id);
+            
+            int saveTokenResult;
+            if (hasExistingToken)
             {
-                saveTokenResult = await _tokenManager.UpdateRefreshTokenAsync(currentUser.Id, refreshToken);
+                // Replace all existing tokens with the new one
+                saveTokenResult = await _tokenManager.ReplaceUserRefreshTokenAsync(currentUser.Id, refreshToken);
             }
             else
             {
+                // First time login - add new token
                 saveTokenResult = await _tokenManager.AddRefreshTokenAsync(currentUser.Id, refreshToken);
             }
 
@@ -188,9 +191,13 @@
             var claims = await _userManager.GetUserClaimsAsync(currentUser!.Email!);
             var newAccessToken = _tokenManager.GenerateAccessToken(claims);
             var newRefreshToken = _tokenManager.GetReFreshToken();
-            //var saveTokenResult = await _tokenManager.UpdateRefreshTokenAsync(userId, newRefreshToken);
+            
+            // Replace the old refresh token with the new one
+            var saveTokenResult = await _tokenManager.ReplaceUserRefreshTokenAsync(userId, newRefreshToken);
 
-            return new LoginResponse { Success = true, Message = "Token revived successfully.", Token = newAccessToken, RefreshToken = newRefreshToken };
+            return saveTokenResult <= 0
+                ? new LoginResponse { Message = "Error occurred while refreshing token." }
+                : new LoginResponse { Success = true, Message = "Token revived successfully.", Token = newAccessToken, RefreshToken = newRefreshToken };
         }
 
         public async Task<ServiceResponse> ChangePassword(ChangePassword changePasswordDto, string userId)

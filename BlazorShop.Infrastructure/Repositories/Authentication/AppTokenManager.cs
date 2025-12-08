@@ -85,6 +85,33 @@
             return await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> UserHasRefreshTokenAsync(string userId)
+        {
+            return await _context.RefreshTokens.AnyAsync(rt => rt.UserId == userId);
+        }
+
+        public async Task<int> ReplaceUserRefreshTokenAsync(string userId, string newRefreshToken)
+        {
+            // Remove all existing refresh tokens for this user
+            var existingTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId)
+                .ToListAsync();
+
+            if (existingTokens.Any())
+            {
+                _context.RefreshTokens.RemoveRange(existingTokens);
+            }
+
+            // Add the new refresh token
+            _context.RefreshTokens.Add(new RefreshToken
+            {
+                UserId = userId,
+                Token = newRefreshToken,
+            });
+
+            return await _context.SaveChangesAsync();
+        }
+
         public string GenerateAccessToken(List<Claim> claims)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]!));

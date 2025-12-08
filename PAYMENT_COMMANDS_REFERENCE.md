@@ -186,6 +186,39 @@ ORDER BY "CreatedOn" DESC;
 SELECT * FROM "PaymentMethods";
 ```
 
+### View Refresh Tokens
+```sql
+-- View all refresh tokens
+SELECT * FROM "RefreshTokens";
+
+-- Count tokens per user
+SELECT "UserId", COUNT(*) as TokenCount
+FROM "RefreshTokens"
+GROUP BY "UserId"
+ORDER BY TokenCount DESC;
+
+-- Find users with multiple tokens (should be empty after fix!)
+SELECT "UserId", COUNT(*) as TokenCount
+FROM "RefreshTokens"
+GROUP BY "UserId"
+HAVING COUNT(*) > 1;
+```
+
+### Cleanup Duplicate Refresh Tokens
+```sql
+-- ?? WARNING: This will force all users to re-login!
+
+-- View tokens before cleanup
+SELECT COUNT(*) as TotalTokens FROM "RefreshTokens";
+
+-- Delete ALL refresh tokens
+DELETE FROM "RefreshTokens";
+
+-- Verify cleanup
+SELECT COUNT(*) as TotalTokens FROM "RefreshTokens";
+-- Expected: 0
+```
+
 ### Delete All Orders (Testing Only)
 ```sql
 DELETE FROM "OrderLines";

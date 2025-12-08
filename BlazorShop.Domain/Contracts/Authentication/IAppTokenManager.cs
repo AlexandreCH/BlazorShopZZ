@@ -16,6 +16,10 @@
 
         Task<int> UpdateRefreshTokenAsync(string userId, string refreshToken);
 
+        Task<bool> UserHasRefreshTokenAsync(string userId);
+
+        Task<int> ReplaceUserRefreshTokenAsync(string userId, string newRefreshToken);
+
         string GenerateAccessToken(List<Claim> claims);
     }
 }
