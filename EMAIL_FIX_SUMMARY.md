@@ -120,13 +120,13 @@ Saves to database
     ?
 Triggers 2 async email tasks:
     ??? Email 1: Customer confirmation
-    ?   ??? To: alexandrech@hotmail.com
+    ?   ??? To: alexa....@.tmail.com
     ?       From: your-email@gmail.com
     ?       Via: smtp.gmail.com:587 (STARTTLS)
     ?       ? SUCCESS
     ?
     ??? Email 2: Support team notification
-        ??? To: support@az-solve.com (hardcoded)
+        ??? To: supp...@...-solve.com (hardcoded)
             From: your-email@gmail.com
             Via: smtp.gmail.com:587 (STARTTLS)
             ? SUCCESS

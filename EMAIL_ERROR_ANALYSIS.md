@@ -4,7 +4,7 @@
 
 ```
 [17:37:51 ERR] Error sending email to support@az-solve.com: No such host is known.
-[17:37:51 ERR] Error sending email to alexandrech@hotmail.com: No such host is known.
+[17:37:51 ERR] Error sending email to alexa....@.otmail.com: No such host is known.
 ```
 
 ---
@@ -151,12 +151,12 @@ Located at: `%APPDATA%\Microsoft\UserSecrets\4d225ffe-ba02-4d4c-a4c3-37082aa61d2
 ## ?? Two Emails Being Sent
 
 ### Email 1: Customer Confirmation
-**To:** `alexandrech@hotmail.com` (the customer's email from the form)
+**To:** `alexand....@.tmail.com` (the customer's email from the form)
 **From:** Your Gmail (from User Secrets)
 **SMTP Server:** `smtp.email.com` (?? doesn't exist)
 
 ### Email 2: Support Team Notification
-**To:** `support@az-solve.com` (?? hardcoded in SupportTicketService.cs)
+**To:** `suppo...@..solve.com` (?? hardcoded in SupportTicketService.cs)
 **From:** Your Gmail (from User Secrets)
 **SMTP Server:** `smtp.email.com` (?? doesn't exist)
 
