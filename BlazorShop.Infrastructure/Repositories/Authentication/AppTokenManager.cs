@@ -48,9 +48,23 @@
 
         public async Task<bool> ValidateRefreshTokenAsync(string refreshToken)
         {
-            var user = await _context.RefreshTokens.FirstOrDefaultAsync(_ => _.Token == refreshToken);
+            var token = await _context.RefreshTokens.FirstOrDefaultAsync(_ => _.Token == refreshToken);
 
-            return user is not null;
+            if (token is null)
+            {
+                return false;
+            }
+
+            // Check if token has expired
+            if (token.ExpiresAt < DateTime.UtcNow)
+            {
+                // Remove expired token
+                _context.RefreshTokens.Remove(token);
+                await _context.SaveChangesAsync();
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<string> GetUserIdByRefreshTokenAsync(string refreshToken)
@@ -110,6 +124,21 @@
             });
 
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<int> RemoveExpiredTokensAsync()
+        {
+            var expiredTokens = await _context.RefreshTokens
+                .Where(rt => rt.ExpiresAt < DateTime.UtcNow)
+                .ToListAsync();
+
+            if (expiredTokens.Any())
+            {
+                _context.RefreshTokens.RemoveRange(expiredTokens);
+                return await _context.SaveChangesAsync();
+            }
+
+            return 0;
         }
 
         public string GenerateAccessToken(List<Claim> claims)

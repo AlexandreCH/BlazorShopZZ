@@ -20,6 +20,8 @@
 
         Task<int> ReplaceUserRefreshTokenAsync(string userId, string newRefreshToken);
 
+        Task<int> RemoveExpiredTokensAsync();
+
         string GenerateAccessToken(List<Claim> claims);
     }
 }

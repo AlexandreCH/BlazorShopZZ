@@ -202,6 +202,24 @@ SELECT "UserId", COUNT(*) as TokenCount
 FROM "RefreshTokens"
 GROUP BY "UserId"
 HAVING COUNT(*) > 1;
+
+-- View tokens with expiration info
+SELECT 
+    rt."UserId",
+    rt."Token",
+    rt."CreatedAt",
+    rt."ExpiresAt",
+    CASE 
+        WHEN rt."ExpiresAt" < NOW() THEN 'EXPIRED'
+        ELSE 'VALID'
+    END as Status
+FROM "RefreshTokens" rt
+ORDER BY rt."ExpiresAt" ASC;
+
+-- Count expired tokens
+SELECT COUNT(*) as ExpiredTokens
+FROM "RefreshTokens"
+WHERE "ExpiresAt" < NOW();
 ```
 
 ### Cleanup Duplicate Refresh Tokens

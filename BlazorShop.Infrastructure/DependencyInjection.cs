@@ -91,6 +91,9 @@
             services.AddScoped<IAppTokenManager, AppTokenManager>();
             services.AddScoped<IAppRoleManager, AppRoleManager>();
 
+            // Register token cleanup background service
+            services.AddHostedService<TokenCleanupService>();
+
             // Configure payment settings
             services.Configure<AppConfiguration>(config.GetSection("App"));
             services.Configure<StripeConfiguration>(config.GetSection("Stripe"));
