@@ -21,5 +21,7 @@ namespace BlazorShop.Domain.Contracts.Payment
         Task<List<Order>> GetByUserIdAsync(string userId);
 
         Task<List<Order>> GetAllAsync();
+
+        Task<List<Order>> GetByDateRangeAsync(DateTime fromUtc, DateTime toUtc);
     }
 }

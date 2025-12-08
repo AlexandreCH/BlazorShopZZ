@@ -82,5 +82,14 @@ namespace BlazorShop.Infrastructure.Repositories.Payment
                 .OrderByDescending(o => o.CreatedOn)
                 .ToListAsync();
         }
+
+        public async Task<List<Order>> GetByDateRangeAsync(DateTime fromUtc, DateTime toUtc)
+        {
+            return await _context.Orders
+                .Include(o => o.Lines)
+                .Where(o => o.CreatedOn >= fromUtc && o.CreatedOn <= toUtc)
+                .OrderBy(o => o.CreatedOn)
+                .ToListAsync();
+        }
     }
 }

@@ -265,7 +265,7 @@ namespace BlazorShop.Tests.Application.Services.Payment
             // Arrange
             _cartMock
                 .Setup(c => c.GetAllCheckoutHistory())
-                .ReturnsAsync((IEnumerable<OrderItem>)null);
+                .ReturnsAsync((IEnumerable<OrderItem>)null!);
 
             // Act
             var result = await _cartService.GetOrderItemsAsync();

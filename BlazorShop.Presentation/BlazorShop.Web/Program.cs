@@ -56,6 +56,7 @@ namespace BlazorShop.Web
             builder.Services.AddSingleton<IToastService, ToastService>();
             builder.Services.AddScoped<INewsletterService, NewsletterService>();
             builder.Services.AddScoped<ISupportTicketService, SupportTicketService>();
+            builder.Services.AddScoped<IMetricsClient, MetricsClient>();
 
             await builder.Build().RunAsync();
         }

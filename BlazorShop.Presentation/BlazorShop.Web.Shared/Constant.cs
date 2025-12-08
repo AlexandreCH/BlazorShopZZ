@@ -95,5 +95,11 @@
             public const string GetAll = "supportticket/all";
             public const string GetById = "supportticket";
         }
+
+        public static class Metrics
+        {
+            public const string Sales = "metrics/sales";
+            public const string Traffic = "metrics/traffic";
+        }
     }
 }
