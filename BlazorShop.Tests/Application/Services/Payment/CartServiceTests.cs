@@ -179,7 +179,7 @@ namespace BlazorShop.Tests.Application.Services.Payment
         }
 
         [Fact]
-        public async Task CheckoutAsync_ShouldReturnFailure_WhenPaymentMethodIsInvalid()
+        public async Task CheckoutAsync_ShouldReturnFailure_WhenCartIsEmpty()
         {
             // Arrange
             var checkout = new Checkout
@@ -203,7 +203,57 @@ namespace BlazorShop.Tests.Application.Services.Payment
 
             // Assert
             Assert.False(result.Success);
-            Assert.Equal("Invalid payment method", result.Message);
+            Assert.Equal("Cart is empty or contains invalid products", result.Message);
+        }
+
+        [Fact]
+        public async Task CheckoutAsync_ShouldReturnFailure_WhenPaymentMethodIsInvalid()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var checkout = new Checkout
+            {
+                PaymentMethodId = Guid.NewGuid(),
+                Carts = new List<ProcessCart>
+                {
+                    new ProcessCart
+                    {
+                        ProductId = productId,
+                        Quantity = 1
+                    }
+                }
+            };
+            var products = new List<Product>
+            {
+                new Product
+                {
+                    Id = productId,
+                    Price = 10m,
+                    Name = "Test Product"
+                }
+            };
+            
+            _productRepositoryMock
+                .Setup(r => r.GetAllAsync())
+                .ReturnsAsync(products);
+                
+            _paymentMethodServiceMock
+                .Setup(s => s.GetPaymentMethodsAsync())
+                .ReturnsAsync(new List<GetPaymentMethod>
+                {
+                    new GetPaymentMethod
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Credit Card"
+                    }
+                });
+
+            // Act
+            var result = await _cartService.CheckoutAsync(checkout);
+
+            // Assert
+            Assert.False(result.Success);
+            Assert.Equal("Invalid payment method selected", result.Message);
         }
 
         [Fact]

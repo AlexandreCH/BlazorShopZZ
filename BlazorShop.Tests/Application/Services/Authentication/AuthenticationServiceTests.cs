@@ -305,6 +305,10 @@ namespace BlazorShop.Tests.Application.Services.Authentication
                 .Setup(t => t.UpdateRefreshTokenAsync(appUser.Id, refreshToken))
                 .ReturnsAsync(1);
 
+            _tokenManagerMock
+                .Setup(t => t.AddRefreshTokenAsync(appUser.Id, refreshToken))
+                .ReturnsAsync(1);
+
             // Act
             var result = await _authenticationService.LoginUser(loginUser);
 
@@ -400,8 +404,12 @@ namespace BlazorShop.Tests.Application.Services.Authentication
             // Arrange
             var refreshToken = "refreshToken";
             var userId = "userId";
-            var appUser = new AppUser { Id = userId, Email = "test@example.com" };
-            var claims = new List<Claim>();
+            var appUser = new AppUser { Id = userId, Email = "test@example.com", EmailConfirmed = true };
+            var claims = new List<Claim> 
+            { 
+                new Claim(ClaimTypes.NameIdentifier, userId),
+                new Claim(ClaimTypes.Email, "test@example.com")
+            };
             var newAccessToken = "newAccessToken";
             var newRefreshToken = "newRefreshToken";
 
@@ -411,6 +419,7 @@ namespace BlazorShop.Tests.Application.Services.Authentication
             _userManagerMock.Setup(u => u.GetUserClaimsAsync(appUser.Email)).ReturnsAsync(claims);
             _tokenManagerMock.Setup(t => t.GenerateAccessToken(claims)).Returns(newAccessToken);
             _tokenManagerMock.Setup(t => t.GetReFreshToken()).Returns(newRefreshToken);
+            _tokenManagerMock.Setup(t => t.ReplaceUserRefreshTokenAsync(userId, newRefreshToken)).ReturnsAsync(1);
 
             // Act
             var result = await _authenticationService.ReviveToken(refreshToken);
